@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { DashboardData } from '@/types';
 import { getDashboard } from '@/services/dashboardService';
 import { formatCurrency } from '@/lib/financeRadar';
+import { apiService } from '@/lib/apiService';
 import RadarCard from '@/components/RadarCard';
 import SummaryCard from '@/components/SummaryCard';
 import TransactionList from '@/components/TransactionList';
@@ -22,7 +23,12 @@ export default function Dashboard() {
 
   useEffect(() => {
     setLoading(true);
-    getDashboard(month, year)
+    apiService
+      .getCached(
+        `dashboard:${month}:${year}`,
+        () => getDashboard(month, year),
+        (fresh) => setData(fresh),
+      )
       .then(setData)
       .finally(() => setLoading(false));
   }, [month, year]);

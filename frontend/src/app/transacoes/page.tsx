@@ -5,18 +5,24 @@ import TransactionForm from '@/components/TransactionForm';
 import { createTransaction } from '@/services/transactionService';
 import { createRecurring } from '@/services/recurringService';
 import { CreateTransactionDTO, CreateRecurringDTO } from '@/types';
+import { apiService } from '@/lib/apiService';
 
 export default function NovaTransacao() {
   const [success, setSuccess] = useState('');
 
   async function handleTransaction(data: CreateTransactionDTO) {
     await createTransaction(data);
+    apiService.invalidatePattern('transactions:');
+    apiService.invalidatePattern('dashboard:');
     setSuccess('Transação salva!');
     setTimeout(() => setSuccess(''), 3000);
   }
 
   async function handleRecurring(data: CreateRecurringDTO) {
     await createRecurring(data);
+    apiService.invalidate('recurring');
+    apiService.invalidatePattern('transactions:');
+    apiService.invalidatePattern('dashboard:');
     setSuccess('Recorrência criada! Ela aparecerá automaticamente todo mês.');
     setTimeout(() => setSuccess(''), 4000);
   }

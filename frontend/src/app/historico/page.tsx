@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Transaction } from '@/types';
 import { getTransactions, deleteTransaction } from '@/services/transactionService';
+import { apiService } from '@/lib/apiService';
 import TransactionList from '@/components/TransactionList';
 
 const MONTHS = [
@@ -19,7 +20,12 @@ export default function Historico() {
 
   function load() {
     setLoading(true);
-    getTransactions(month, year)
+    apiService
+      .getCached(
+        `transactions:${month}:${year}`,
+        () => getTransactions(month, year),
+        (fresh) => setTransactions(fresh),
+      )
       .then(setTransactions)
       .finally(() => setLoading(false));
   }
@@ -28,6 +34,8 @@ export default function Historico() {
 
   async function handleDelete(id: string) {
     await deleteTransaction(id);
+    apiService.invalidatePattern('transactions:');
+    apiService.invalidatePattern('dashboard:');
     setTransactions((prev) => prev.filter((t) => t.id !== id));
   }
 

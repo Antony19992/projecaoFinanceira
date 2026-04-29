@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { RecurringTransaction } from '@/types';
 import { getRecurring, toggleRecurring, deleteRecurring } from '@/services/recurringService';
+import { apiService } from '@/lib/apiService';
 import { formatCurrency } from '@/lib/financeRadar';
 
 export default function Recorrentes() {
@@ -11,18 +12,27 @@ export default function Recorrentes() {
 
   function load() {
     setLoading(true);
-    getRecurring().then(setItems).finally(() => setLoading(false));
+    apiService
+      .getCached('recurring', getRecurring, (fresh) => setItems(fresh))
+      .then(setItems)
+      .finally(() => setLoading(false));
   }
 
   useEffect(() => { load(); }, []);
 
   async function handleToggle(item: RecurringTransaction) {
     const updated = await toggleRecurring(item.id, !item.active);
+    apiService.invalidate('recurring');
+    apiService.invalidatePattern('dashboard:');
+    apiService.invalidatePattern('transactions:');
     setItems((prev) => prev.map((i) => (i.id === updated.id ? updated : i)));
   }
 
   async function handleDelete(id: string) {
     await deleteRecurring(id);
+    apiService.invalidate('recurring');
+    apiService.invalidatePattern('dashboard:');
+    apiService.invalidatePattern('transactions:');
     setItems((prev) => prev.filter((i) => i.id !== id));
   }
 

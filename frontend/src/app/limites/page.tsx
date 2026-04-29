@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { MonthlyLimit, CreateLimitDTO } from '@/types';
 import { getLimits, upsertLimit, deleteLimit } from '@/services/limitService';
+import { apiService } from '@/lib/apiService';
 import { formatCurrency } from '@/lib/financeRadar';
 
 const CATEGORIES = [
@@ -24,7 +25,9 @@ export default function Limites() {
   const [loading, setLoading] = useState(false);
 
   function load() {
-    getLimits(month, year).then(setLimits);
+    apiService
+      .getCached(`limits:${month}:${year}`, () => getLimits(month, year), setLimits)
+      .then(setLimits);
   }
 
   useEffect(() => {
@@ -38,6 +41,8 @@ export default function Limites() {
     setLoading(true);
     try {
       await upsertLimit({ ...form, month, year });
+      apiService.invalidate(`limits:${month}:${year}`);
+      apiService.invalidatePattern('dashboard:');
       load();
       setForm((f) => ({ ...f, limitValue: 0 }));
     } finally {
@@ -47,6 +52,8 @@ export default function Limites() {
 
   async function handleDelete(id: string) {
     await deleteLimit(id);
+    apiService.invalidate(`limits:${month}:${year}`);
+    apiService.invalidatePattern('dashboard:');
     setLimits((prev) => prev.filter((l) => l.id !== id));
   }
 

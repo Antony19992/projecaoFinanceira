@@ -20,6 +20,7 @@ model Transaction {
   recurringId   String?
   recurring     RecurringTransaction? @relation(fields: [recurringId], references: [id])
   createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
 }
 
 model RecurringTransaction {
@@ -33,14 +34,16 @@ model RecurringTransaction {
   active       Boolean       @default(true)
   transactions Transaction[]
   createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 }
 
 model MonthlyLimit {
-  id         String @id @default(cuid())
+  id         String   @id @default(cuid())
   category   String
   limitValue Float
   month      Int
   year       Int
+  updatedAt  DateTime @updatedAt
 
   @@unique([category, month, year])
 }
