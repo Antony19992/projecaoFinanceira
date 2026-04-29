@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Transaction {
+  id            String                @id @default(cuid())
+  amount        Float
+  date          DateTime
+  description   String
+  category      String
+  type          String
+  source        String                @default("manual")
+  recurringId   String?
+  recurring     RecurringTransaction? @relation(fields: [recurringId], references: [id])
+  createdAt     DateTime              @default(now())
+}
+
+model RecurringTransaction {
+  id           String        @id @default(cuid())
+  amount       Float
+  description  String
+  category     String
+  type         String
+  source       String        @default("manual")
+  dayOfMonth   Int
+  active       Boolean       @default(true)
+  transactions Transaction[]
+  createdAt    DateTime      @default(now())
+}
+
+model MonthlyLimit {
+  id         String @id @default(cuid())
+  category   String
+  limitValue Float
+  month      Int
+  year       Int
+
+  @@unique([category, month, year])
+}
