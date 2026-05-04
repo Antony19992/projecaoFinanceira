@@ -77,5 +77,6 @@ export async function generateTransactionsXlsx(userId: string): Promise<Buffer> 
     row.height = 20;
   });
 
-  return wb.xlsx.writeBuffer() as unknown as Promise<Buffer>;
+  const raw = await wb.xlsx.writeBuffer();
+  return Buffer.from(raw);
 }
