@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   description: 'Radar comportamental de gastos mensais',
   manifest: '/manifest.json',
   appleWebApp: { capable: true, statusBarStyle: 'black-translucent', title: 'Radar' },
+  icons: {
+    apple: '/icons/icon-192.png',
+  },
 };
 
 export const viewport: Viewport = {
