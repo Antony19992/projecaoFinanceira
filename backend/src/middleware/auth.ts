@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
+import { createClient } from '@supabase/supabase-js';
 
 declare global {
   namespace Express {
@@ -9,15 +9,22 @@ declare global {
   }
 }
 
-export function requireAuth(req: Request, res: Response, next: NextFunction) {
+const supabase = createClient(
+  process.env.SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  { auth: { persistSession: false } },
+);
+
+export async function requireAuth(req: Request, res: Response, next: NextFunction) {
   const token = req.headers.authorization?.replace('Bearer ', '');
   if (!token) return res.status(401).json({ error: 'Não autorizado' });
 
-  try {
-    const payload = jwt.verify(token, process.env.SUPABASE_JWT_SECRET!) as { sub: string };
-    req.userId = payload.sub;
-    next();
-  } catch {
-    res.status(401).json({ error: 'Token inválido' });
+  const { data: { user }, error } = await supabase.auth.getUser(token);
+
+  if (error || !user) {
+    return res.status(401).json({ error: 'Token inválido' });
   }
+
+  req.userId = user.id;
+  next();
 }
