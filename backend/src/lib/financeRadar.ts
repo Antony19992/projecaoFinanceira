@@ -28,7 +28,11 @@ export function calculateRadar(
 
   const diff = totalLimit - totalExpenses;
   const message =
-    diff < 0
+    totalLimit <= 0
+      ? balance >= 0
+        ? `Saldo positivo de R$ ${balance.toFixed(2)} — nenhum limite definido`
+        : `Saldo negativo de R$ ${Math.abs(balance).toFixed(2)} — nenhum limite definido`
+      : diff < 0
       ? `Você ultrapassou o orçamento em R$ ${Math.abs(diff).toFixed(2)}`
       : `Você tem R$ ${diff.toFixed(2)} disponíveis no orçamento`;
 
