@@ -17,7 +17,8 @@ export async function listByMonth(req: Request, res: Response) {
     const transactions = await transactionService.getTransactionsByMonth(month, year, req.userId);
     res.json(transactions);
   } catch (err) {
-    res.status(500).json({ error: 'Erro ao buscar transações' });
+    console.error('[transactions:list]', err);
+    res.status(500).json({ error: 'Erro ao buscar transações', details: String(err) });
   }
 }
 
