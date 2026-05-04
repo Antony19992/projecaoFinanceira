@@ -40,6 +40,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   async function signOut() {
+    // limpa cache local para não vazar dados entre usuários
+    Object.keys(localStorage)
+      .filter((k) => k.startsWith('radar_cache_'))
+      .forEach((k) => localStorage.removeItem(k));
     await supabase.auth.signOut();
   }
 
