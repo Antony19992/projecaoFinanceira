@@ -7,12 +7,24 @@ export function calculateRadar(
   dayOfMonth: number,
   daysInMonth: number
 ): RadarResult {
-  const dailyRate = dayOfMonth > 0 ? totalExpenses / dayOfMonth : 0;
-  const projection = dailyRate * daysInMonth;
+  // Nos primeiros 7 dias não extrapolamos: gastos recorrentes são
+  // materializados de uma vez e distorceriam a projeção diária.
+  const MIN_DAYS = 7;
+  const projection =
+    dayOfMonth >= MIN_DAYS
+      ? (totalExpenses / dayOfMonth) * daysInMonth
+      : totalExpenses;
+
   const balance = totalIncome - totalExpenses;
 
+  // Para o status, comparar com o limite total (não pro-rated) quando
+  // ainda estamos cedo no mês.
   const expectedByToday =
-    totalLimit > 0 ? (totalLimit / daysInMonth) * dayOfMonth : 0;
+    totalLimit > 0
+      ? dayOfMonth >= MIN_DAYS
+        ? (totalLimit / daysInMonth) * dayOfMonth
+        : totalLimit
+      : 0;
 
   const percentageUsed =
     expectedByToday > 0 ? (totalExpenses / expectedByToday) * 100 : 0;
