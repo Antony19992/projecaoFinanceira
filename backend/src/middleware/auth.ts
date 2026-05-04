@@ -16,15 +16,20 @@ const supabase = createClient(
 );
 
 export async function requireAuth(req: Request, res: Response, next: NextFunction) {
-  const token = req.headers.authorization?.replace('Bearer ', '');
-  if (!token) return res.status(401).json({ error: 'Não autorizado' });
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) return res.status(401).json({ error: 'Não autorizado' });
 
-  const { data: { user }, error } = await supabase.auth.getUser(token);
+    const { data: { user }, error } = await supabase.auth.getUser(token);
 
-  if (error || !user) {
-    return res.status(401).json({ error: 'Token inválido' });
+    if (error || !user) {
+      return res.status(401).json({ error: 'Token inválido' });
+    }
+
+    req.userId = user.id;
+    next();
+  } catch (err) {
+    console.error('[auth]', err);
+    res.status(500).json({ error: 'Erro interno de autenticação' });
   }
-
-  req.userId = user.id;
-  next();
 }
