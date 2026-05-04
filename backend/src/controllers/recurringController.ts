@@ -3,16 +3,16 @@ import * as recurringService from '../services/recurringService';
 
 export async function create(req: Request, res: Response) {
   try {
-    const recurring = await recurringService.createRecurring(req.body);
+    const recurring = await recurringService.createRecurring(req.body, req.userId);
     res.status(201).json(recurring);
   } catch (err) {
     res.status(400).json({ error: 'Erro ao criar recorrência', details: err });
   }
 }
 
-export async function list(_req: Request, res: Response) {
+export async function list(req: Request, res: Response) {
   try {
-    const items = await recurringService.listRecurring();
+    const items = await recurringService.listRecurring(req.userId);
     res.json(items);
   } catch (err) {
     res.status(500).json({ error: 'Erro ao buscar recorrências' });

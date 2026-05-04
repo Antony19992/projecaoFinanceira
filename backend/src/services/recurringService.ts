@@ -1,9 +1,10 @@
 import prisma from '../lib/prisma';
 import { CreateRecurringDTO } from '../types';
 
-export async function createRecurring(data: CreateRecurringDTO) {
+export async function createRecurring(data: CreateRecurringDTO, userId: string) {
   return prisma.recurringTransaction.create({
     data: {
+      userId,
       amount: data.amount,
       description: data.description,
       category: data.category,
@@ -14,8 +15,11 @@ export async function createRecurring(data: CreateRecurringDTO) {
   });
 }
 
-export async function listRecurring() {
-  return prisma.recurringTransaction.findMany({ orderBy: { createdAt: 'asc' } });
+export async function listRecurring(userId: string) {
+  return prisma.recurringTransaction.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'asc' },
+  });
 }
 
 export async function toggleRecurring(id: string, active: boolean) {

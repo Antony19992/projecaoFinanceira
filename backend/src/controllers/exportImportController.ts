@@ -4,7 +4,7 @@ import { importTransactions } from '../services/importService';
 
 export async function exportTransactions(req: Request, res: Response) {
   try {
-    const buffer = await generateTransactionsXlsx();
+    const buffer = await generateTransactionsXlsx(req.userId);
     const filename = `radar-gastos-${new Date().toISOString().slice(0, 10)}.xlsx`;
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
@@ -20,7 +20,7 @@ export async function importTransactionsHandler(req: Request, res: Response) {
     return res.status(400).json({ error: 'Nenhuma linha recebida' });
   }
   try {
-    const result = await importTransactions(rows);
+    const result = await importTransactions(rows, req.userId);
     res.json(result);
   } catch (err) {
     res.status(500).json({ error: 'Erro ao importar planilha' });

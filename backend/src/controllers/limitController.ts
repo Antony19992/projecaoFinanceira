@@ -3,7 +3,7 @@ import * as limitService from '../services/limitService';
 
 export async function upsert(req: Request, res: Response) {
   try {
-    const limit = await limitService.upsertLimit(req.body);
+    const limit = await limitService.upsertLimit(req.body, req.userId);
     res.status(201).json(limit);
   } catch (err) {
     res.status(400).json({ error: 'Erro ao salvar limite', details: err });
@@ -14,7 +14,7 @@ export async function listByMonth(req: Request, res: Response) {
   try {
     const month = Number(req.query.month) || new Date().getMonth() + 1;
     const year = Number(req.query.year) || new Date().getFullYear();
-    const limits = await limitService.getLimitsByMonth(month, year);
+    const limits = await limitService.getLimitsByMonth(month, year, req.userId);
     res.json(limits);
   } catch (err) {
     res.status(500).json({ error: 'Erro ao buscar limites' });

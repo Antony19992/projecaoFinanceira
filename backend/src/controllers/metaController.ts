@@ -9,7 +9,7 @@ export async function getMeta(req: Request, res: Response) {
   }
 
   try {
-    const latestUpdatedAt = await getLatestUpdatedAt(key);
+    const latestUpdatedAt = await getLatestUpdatedAt(key, req.userId);
 
     if (!since || !latestUpdatedAt) {
       return res.json({

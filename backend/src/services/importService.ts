@@ -4,10 +4,10 @@ const prisma = new PrismaClient();
 
 interface ImportRow {
   id?: string;
-  date: string;        // DD/MM/YYYY
+  date: string;
   description: string;
   category: string;
-  type: string;        // 'Receita' | 'Despesa'
+  type: string;
   amount: number;
 }
 
@@ -16,7 +16,7 @@ function parseDate(str: string): Date {
   return new Date(y, m - 1, d, 12, 0, 0);
 }
 
-export async function importTransactions(rows: ImportRow[]) {
+export async function importTransactions(rows: ImportRow[], userId: string) {
   let inserted = 0;
   let updated = 0;
   const errors: string[] = [];
@@ -45,6 +45,7 @@ export async function importTransactions(rows: ImportRow[]) {
       }
 
       const data = {
+        userId,
         date,
         description: String(row.description).trim(),
         category: String(row.category ?? 'Outros').trim(),

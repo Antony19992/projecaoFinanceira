@@ -1,9 +1,10 @@
 import prisma from '../lib/prisma';
 import { CreateTransactionDTO } from '../types';
 
-export async function createTransaction(data: CreateTransactionDTO) {
+export async function createTransaction(data: CreateTransactionDTO, userId: string) {
   return prisma.transaction.create({
     data: {
+      userId,
       amount: data.amount,
       date: new Date(data.date),
       description: data.description,
@@ -14,10 +15,14 @@ export async function createTransaction(data: CreateTransactionDTO) {
   });
 }
 
-async function materializeRecurring(month: number, year: number) {
+async function materializeRecurring(month: number, year: number, userId: string) {
   const recurring = await prisma.recurringTransaction.findMany({
-    where: { active: true },
-    include: { transactions: { where: { date: { gte: new Date(year, month - 1, 1), lte: new Date(year, month, 0, 23, 59, 59) } } } },
+    where: { active: true, userId },
+    include: {
+      transactions: {
+        where: { date: { gte: new Date(year, month - 1, 1), lte: new Date(year, month, 0, 23, 59, 59) } },
+      },
+    },
   });
 
   const requestedPeriod = year * 12 + month;
@@ -32,6 +37,7 @@ async function materializeRecurring(month: number, year: number) {
 
   await prisma.transaction.createMany({
     data: toCreate.map((r) => ({
+      userId,
       amount: r.amount,
       date: new Date(year, month - 1, Math.min(r.dayOfMonth, daysInMonth)),
       description: r.description,
@@ -43,20 +49,21 @@ async function materializeRecurring(month: number, year: number) {
   });
 }
 
-export async function getTransactionsByMonth(month: number, year: number) {
-  await materializeRecurring(month, year);
+export async function getTransactionsByMonth(month: number, year: number, userId: string) {
+  await materializeRecurring(month, year, userId);
 
   const start = new Date(year, month - 1, 1);
   const end = new Date(year, month, 0, 23, 59, 59);
 
   return prisma.transaction.findMany({
-    where: { date: { gte: start, lte: end } },
+    where: { userId, date: { gte: start, lte: end } },
     orderBy: { date: 'desc' },
   });
 }
 
-export async function getRecentTransactions(limit = 10) {
+export async function getRecentTransactions(userId: string, limit = 10) {
   return prisma.transaction.findMany({
+    where: { userId },
     orderBy: { date: 'desc' },
     take: limit,
   });

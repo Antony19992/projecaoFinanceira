@@ -11,6 +11,7 @@ datasource db {
 
 model Transaction {
   id            String                @id @default(cuid())
+  userId        String?
   amount        Float
   date          DateTime
   description   String
@@ -25,6 +26,7 @@ model Transaction {
 
 model RecurringTransaction {
   id           String        @id @default(cuid())
+  userId       String?
   amount       Float
   description  String
   category     String
@@ -39,11 +41,12 @@ model RecurringTransaction {
 
 model MonthlyLimit {
   id         String   @id @default(cuid())
+  userId     String?
   category   String
   limitValue Float
   month      Int
   year       Int
   updatedAt  DateTime @updatedAt
 
-  @@unique([category, month, year])
+  @@unique([userId, category, month, year])
 }

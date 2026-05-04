@@ -9,8 +9,9 @@ function fmtDate(date: Date): string {
   return `${d}/${m}/${date.getFullYear()}`;
 }
 
-export async function generateTransactionsXlsx(): Promise<Buffer> {
+export async function generateTransactionsXlsx(userId: string): Promise<Buffer> {
   const transactions = await prisma.transaction.findMany({
+    where: { userId },
     orderBy: { date: 'desc' },
   });
 
@@ -30,7 +31,6 @@ export async function generateTransactionsXlsx(): Promise<Buffer> {
     { header: 'Valor (R$)',     key: 'amount',       width: 14 },
   ];
 
-  // Header styling
   const headerRow = ws.getRow(1);
   headerRow.height = 24;
   headerRow.eachCell((cell) => {
@@ -40,10 +40,8 @@ export async function generateTransactionsXlsx(): Promise<Buffer> {
     cell.border = { bottom: { style: 'thin', color: { argb: 'FF334155' } } };
   });
 
-  // Auto-filter
   ws.autoFilter = { from: 'A1', to: 'F1' };
 
-  // Data rows
   transactions.forEach((t) => {
     const isIncome = t.type === 'INCOME';
     const row = ws.addRow({
@@ -58,7 +56,6 @@ export async function generateTransactionsXlsx(): Promise<Buffer> {
     const rowBg = isIncome ? 'FFF0FDF4' : 'FFFFF1F2';
 
     row.eachCell({ includeEmpty: true }, (cell, col) => {
-      // ID column: gray tone
       if (col === 1) {
         cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
         cell.font = { color: { argb: 'FF94A3B8' }, size: 9 };
@@ -69,22 +66,16 @@ export async function generateTransactionsXlsx(): Promise<Buffer> {
       cell.alignment = { vertical: 'middle' };
     });
 
-    // Amount: right-aligned, number format
     const amountCell = row.getCell(6);
     amountCell.numFmt = '#,##0.00';
     amountCell.alignment = { horizontal: 'right', vertical: 'middle' };
 
-    // Tipo: colored text
     const typeCell = row.getCell(5);
-    typeCell.font = {
-      size: 11,
-      bold: true,
-      color: { argb: isIncome ? 'FF16A34A' : 'FFDC2626' },
-    };
+    typeCell.font = { size: 11, bold: true, color: { argb: isIncome ? 'FF16A34A' : 'FFDC2626' } };
     typeCell.alignment = { horizontal: 'center', vertical: 'middle' };
 
     row.height = 20;
   });
 
-  return wb.xlsx.writeBuffer() as Promise<Buffer>;
+  return wb.xlsx.writeBuffer() as unknown as Promise<Buffer>;
 }

@@ -2,10 +2,10 @@ import { getTransactionsByMonth, getRecentTransactions } from './transactionServ
 import { getTotalLimitByMonth } from './limitService';
 import { calculateRadar } from '../lib/financeRadar';
 
-export async function getDashboardData(month: number, year: number) {
-  const transactions = await getTransactionsByMonth(month, year);
-  const recent = await getRecentTransactions(8);
-  const totalLimit = await getTotalLimitByMonth(month, year);
+export async function getDashboardData(month: number, year: number, userId: string) {
+  const transactions = await getTransactionsByMonth(month, year, userId);
+  const recent = await getRecentTransactions(userId, 8);
+  const totalLimit = await getTotalLimitByMonth(month, year, userId);
 
   const totalExpenses = transactions
     .filter((t) => t.type === 'EXPENSE')
@@ -19,13 +19,7 @@ export async function getDashboardData(month: number, year: number) {
   const dayOfMonth = today.getDate();
   const daysInMonth = new Date(year, month, 0).getDate();
 
-  const radar = calculateRadar(
-    totalExpenses,
-    totalIncome,
-    totalLimit,
-    dayOfMonth,
-    daysInMonth
-  );
+  const radar = calculateRadar(totalExpenses, totalIncome, totalLimit, dayOfMonth, daysInMonth);
 
   return { radar, recentTransactions: recent, month, year };
 }
