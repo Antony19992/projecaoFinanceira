@@ -4,12 +4,18 @@ export function calculateRadar(
   totalExpenses: number,
   totalIncome: number,
   totalLimit: number,
+  dayOfMonth: number,
+  daysInMonth: number,
 ): RadarResult {
   const projection = totalExpenses;
   const balance = totalIncome - totalExpenses;
 
   const percentageUsed =
     totalLimit > 0 ? (totalExpenses / totalLimit) * 100 : 0;
+
+  const remainingDays = Math.max(daysInMonth - dayOfMonth + 1, 1);
+  const dailyAllowance =
+    totalLimit > 0 ? (totalLimit - totalExpenses) / remainingDays : 0;
 
   let status: RadarStatus;
   if (percentageUsed <= 90) {
@@ -35,6 +41,7 @@ export function calculateRadar(
     percentageUsed,
     expectedByToday: totalLimit,
     totalLimit,
+    dailyAllowance,
     message,
   };
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { RadarResult } from '@/types';
-import { statusColor, statusLabel, formatCurrency } from '@/lib/financeRadar';
+import { statusColor, formatCurrency } from '@/lib/financeRadar';
 import StatusBadge from './StatusBadge';
 
 interface Props {
@@ -22,8 +22,8 @@ export default function RadarCard({ radar }: Props) {
       {/* Progress bar */}
       <div>
         <div className="flex justify-between text-xs text-slate-400 mb-2">
-          <span>Gasto proporcional ao dia</span>
-          <span>{radar.percentageUsed.toFixed(0)}%</span>
+          <span>Gasto do mês</span>
+          <span>{radar.percentageUsed.toFixed(0)}% do limite</span>
         </div>
         <div className="w-full h-3 bg-slate-800 rounded-full overflow-hidden">
           <div
@@ -32,10 +32,22 @@ export default function RadarCard({ radar }: Props) {
           />
         </div>
         <div className="flex justify-between text-xs text-slate-500 mt-1">
-          <span>Esperado: {formatCurrency(radar.expectedByToday)}</span>
+          <span>Limite: {radar.totalLimit > 0 ? formatCurrency(radar.totalLimit) : '—'}</span>
           <span>Gasto: {formatCurrency(radar.totalExpenses)}</span>
         </div>
       </div>
+
+      {/* Daily allowance */}
+      {radar.totalLimit > 0 && (
+        <div className="rounded-xl bg-slate-800 px-4 py-3 flex justify-between items-center">
+          <span className="text-xs text-slate-400">Pode gastar por dia (restante do mês)</span>
+          <span
+            className={`text-sm font-bold ${radar.dailyAllowance >= 0 ? 'text-green-400' : 'text-red-400'}`}
+          >
+            {formatCurrency(radar.dailyAllowance)}
+          </span>
+        </div>
+      )}
 
       {/* Message */}
       <div

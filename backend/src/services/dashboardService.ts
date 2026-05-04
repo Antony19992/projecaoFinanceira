@@ -15,7 +15,11 @@ export async function getDashboardData(month: number, year: number, userId: stri
     .filter((t) => t.type === 'INCOME')
     .reduce((sum, t) => sum + t.amount, 0);
 
-  const radar = calculateRadar(totalExpenses, totalIncome, totalLimit);
+  const today = new Date();
+  const dayOfMonth = today.getDate();
+  const daysInMonth = new Date(year, month, 0).getDate();
+
+  const radar = calculateRadar(totalExpenses, totalIncome, totalLimit, dayOfMonth, daysInMonth);
 
   return { radar, recentTransactions: recent, month, year };
 }

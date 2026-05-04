@@ -32,6 +32,7 @@ export interface RadarResult {
   percentageUsed: number;
   expectedByToday: number;
   totalLimit: number;
+  dailyAllowance: number;
   message: string;
 }
 
