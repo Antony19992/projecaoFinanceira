@@ -2,13 +2,11 @@
 
 import { useEffect, useRef, useState } from 'react';
 import * as XLSX from 'xlsx';
-import axios from 'axios';
 import { Transaction } from '@/types';
 import { getTransactions, deleteTransaction } from '@/services/transactionService';
 import { apiService } from '@/lib/apiService';
+import api from '@/services/api';
 import TransactionList from '@/components/TransactionList';
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api';
 
 const MONTHS = [
   '', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
@@ -56,7 +54,7 @@ export default function Historico() {
   async function handleExport() {
     setExporting(true);
     try {
-      const res = await axios.get(`${API}/transactions/export`, { responseType: 'blob' });
+      const res = await api.get('/transactions/export', { responseType: 'blob' });
       const url = URL.createObjectURL(new Blob([res.data]));
       const a = document.createElement('a');
       a.href = url;
@@ -88,7 +86,7 @@ export default function Historico() {
         amount:      Number(r['Valor (R$)']),
       }));
 
-      const { data } = await axios.post<ImportResult>(`${API}/transactions/import`, { rows });
+      const { data } = await api.post<ImportResult>('/transactions/import', { rows });
       setImportResult(data);
 
       if (data.inserted > 0 || data.updated > 0) {
