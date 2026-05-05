@@ -2,6 +2,10 @@ import prisma from '../lib/prisma';
 import { CreateRecurringDTO } from '../types';
 
 export async function createRecurring(data: CreateRecurringDTO, userId: string) {
+  const now = new Date();
+  const startMonth = data.startMonth ?? (now.getMonth() + 1);
+  const startYear = data.startYear ?? now.getFullYear();
+
   return prisma.recurringTransaction.create({
     data: {
       userId,
@@ -11,6 +15,7 @@ export async function createRecurring(data: CreateRecurringDTO, userId: string) 
       type: data.type,
       source: data.source ?? 'manual',
       dayOfMonth: data.dayOfMonth,
+      startDate: new Date(startYear, startMonth - 1, 1),
     },
   });
 }

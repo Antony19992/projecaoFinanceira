@@ -33,6 +33,7 @@ model RecurringTransaction {
   type         String
   source       String        @default("manual")
   dayOfMonth   Int
+  startDate    DateTime?
   active       Boolean       @default(true)
   transactions Transaction[]
   createdAt    DateTime      @default(now())

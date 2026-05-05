@@ -27,8 +27,9 @@ async function materializeRecurring(month: number, year: number, userId: string)
 
   const requestedPeriod = year * 12 + month;
   const toCreate = recurring.filter((r) => {
-    const createdPeriod = r.createdAt.getFullYear() * 12 + (r.createdAt.getMonth() + 1);
-    return r.transactions.length === 0 && requestedPeriod >= createdPeriod;
+    const ref = r.startDate ?? r.createdAt;
+    const startPeriod = ref.getFullYear() * 12 + (ref.getMonth() + 1);
+    return r.transactions.length === 0 && requestedPeriod >= startPeriod;
   });
 
   if (toCreate.length === 0) return;

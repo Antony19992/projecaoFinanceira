@@ -25,6 +25,8 @@ export interface CreateRecurringDTO {
   type: TransactionType;
   source?: TransactionSource;
   dayOfMonth: number;
+  startMonth?: number;
+  startYear?: number;
 }
 
 export type RadarStatus = 'GREEN' | 'YELLOW' | 'RED';

@@ -16,6 +16,7 @@ interface Props {
 export default function TransactionForm({ onSubmitTransaction, onSubmitRecurring }: Props) {
   const today = new Date().toISOString().split('T')[0];
 
+  const now = new Date();
   const [recurring, setRecurring] = useState(false);
   const [type, setType] = useState<TransactionType>('EXPENSE');
   const [amount, setAmount] = useState(0);
@@ -23,12 +24,15 @@ export default function TransactionForm({ onSubmitTransaction, onSubmitRecurring
   const [category, setCategory] = useState('Outros');
   const [date, setDate] = useState(today);
   const [dayOfMonth, setDayOfMonth] = useState(1);
+  const [startMonth, setStartMonth] = useState(now.getMonth() + 1);
+  const [startYear, setStartYear] = useState(now.getFullYear());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   function reset() {
     setAmount(0); setDescription(''); setCategory('Outros');
     setType('EXPENSE'); setDate(today); setDayOfMonth(1);
+    setStartMonth(now.getMonth() + 1); setStartYear(now.getFullYear());
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -39,7 +43,7 @@ export default function TransactionForm({ onSubmitTransaction, onSubmitRecurring
     setLoading(true);
     try {
       if (recurring) {
-        await onSubmitRecurring({ amount, description, category, type, source: 'manual', dayOfMonth });
+        await onSubmitRecurring({ amount, description, category, type, source: 'manual', dayOfMonth, startMonth, startYear });
       } else {
         await onSubmitTransaction({ amount, date, description, category, type, source: 'manual' });
       }
@@ -117,6 +121,23 @@ export default function TransactionForm({ onSubmitTransaction, onSubmitRecurring
           )}
         </div>
       </div>
+
+      {recurring && (
+        <div>
+          <label className={labelCls}>A partir de</label>
+          <div className="grid grid-cols-2 gap-3">
+            <select className={inputCls} value={startMonth} onChange={(e) => setStartMonth(Number(e.target.value))}>
+              {['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+                'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro']
+                .map((m, i) => <option key={i+1} value={i+1}>{m}</option>)}
+            </select>
+            <select className={inputCls} value={startYear} onChange={(e) => setStartYear(Number(e.target.value))}>
+              {[now.getFullYear(), now.getFullYear()+1, now.getFullYear()+2]
+                .map((y) => <option key={y} value={y}>{y}</option>)}
+            </select>
+          </div>
+        </div>
+      )}
 
       {error && <p className="text-red-400 text-xs">{error}</p>}
 
