@@ -8,6 +8,7 @@ const app = express();
 
 const corsOptions: cors.CorsOptions = {
   origin: [
+    'https://projecao-financeira-s3vo.vercel.app',
     'https://projecao-financeira-kappa.vercel.app',
     'http://localhost:3000',
   ],
