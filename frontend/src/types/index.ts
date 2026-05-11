@@ -81,3 +81,29 @@ export interface CreateRecurringDTO {
   startMonth?: number;
   startYear?: number;
 }
+
+export interface CaixinhaCheckIn {
+  id: string;
+  caixinhaId: string;
+  month: number;
+  year: number;
+  createdAt: string;
+}
+
+export interface Caixinha {
+  id: string;
+  name: string;
+  description: string;
+  targetValue: number;
+  monthlyContribution: number;
+  checkIns: CaixinhaCheckIn[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateCaixinhaDTO {
+  name: string;
+  description: string;
+  targetValue: number;
+  monthlyContribution: number;
+}

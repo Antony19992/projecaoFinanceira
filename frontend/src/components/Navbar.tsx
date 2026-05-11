@@ -9,6 +9,7 @@ const links = [
   { href: '/transacoes', label: 'Nova transação' },
   { href: '/recorrentes', label: 'Fixas' },
   { href: '/limites', label: 'Limites' },
+  { href: '/caixinhas', label: 'Caixinhas' },
   { href: '/historico', label: 'Histórico' },
 ];
 

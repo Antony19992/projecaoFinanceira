@@ -51,3 +51,26 @@ model MonthlyLimit {
 
   @@unique([userId, category, month, year])
 }
+
+model Caixinha {
+  id                  String            @id @default(cuid())
+  userId              String
+  name                String
+  description         String
+  targetValue         Float
+  monthlyContribution Float
+  checkIns            CaixinhaCheckIn[]
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+}
+
+model CaixinhaCheckIn {
+  id         String   @id @default(cuid())
+  caixinhaId String
+  caixinha   Caixinha @relation(fields: [caixinhaId], references: [id], onDelete: Cascade)
+  month      Int
+  year       Int
+  createdAt  DateTime @default(now())
+
+  @@unique([caixinhaId, month, year])
+}

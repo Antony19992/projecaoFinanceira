@@ -1,13 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { DashboardData } from '@/types';
+import { Caixinha, DashboardData } from '@/types';
 import { getDashboard } from '@/services/dashboardService';
+import { getCaixinhas } from '@/services/caixinhaService';
 import { formatCurrency } from '@/lib/financeRadar';
 import { apiService } from '@/lib/apiService';
 import RadarCard from '@/components/RadarCard';
 import SummaryCard from '@/components/SummaryCard';
-import TransactionList from '@/components/TransactionList';
+import CaixinhaCard from '@/components/CaixinhaCard';
+import Link from 'next/link';
 
 const MONTHS = [
   '', 'Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun',
@@ -19,17 +21,23 @@ export default function Dashboard() {
   const [month, setMonth] = useState(now.getMonth() + 1);
   const [year, setYear] = useState(now.getFullYear());
   const [data, setData] = useState<DashboardData | null>(null);
+  const [caixinhas, setCaixinhas] = useState<Caixinha[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
-    apiService
-      .getCached(
+    Promise.all([
+      apiService.getCached(
         `dashboard:${month}:${year}`,
         () => getDashboard(month, year),
         (fresh) => setData(fresh),
-      )
-      .then(setData)
+      ),
+      getCaixinhas(),
+    ])
+      .then(([dashData, caixinhasData]) => {
+        setData(dashData);
+        setCaixinhas(caixinhasData);
+      })
       .finally(() => setLoading(false));
   }, [month, year]);
 
@@ -40,6 +48,10 @@ export default function Dashboard() {
   function nextMonth() {
     if (month === 12) { setMonth(1); setYear((y) => y + 1); }
     else setMonth((m) => m + 1);
+  }
+
+  function handleCaixinhaUpdate(updated: Caixinha) {
+    setCaixinhas((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
   }
 
   return (
@@ -73,13 +85,6 @@ export default function Dashboard() {
               highlight
             />
           </div>
-
-          <div>
-            <h3 className="text-sm font-semibold text-slate-400 mb-3 uppercase tracking-wider">
-              Últimas transações
-            </h3>
-            <TransactionList transactions={data.recentTransactions} />
-          </div>
         </>
       )}
 
@@ -87,6 +92,43 @@ export default function Dashboard() {
         <p className="text-center text-slate-500 text-sm py-16">
           Sem dados para este período.
         </p>
+      )}
+
+      {!loading && (
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider">
+              Caixinhas
+            </h3>
+            <Link
+              href="/caixinhas"
+              className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
+            >
+              Gerenciar
+            </Link>
+          </div>
+
+          {caixinhas.length === 0 ? (
+            <Link
+              href="/caixinhas"
+              className="block text-center text-slate-500 text-sm py-8 border border-dashed border-slate-700 rounded-xl hover:border-slate-500 transition-colors"
+            >
+              + Criar primeira caixinha
+            </Link>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {caixinhas.map((c) => (
+                <CaixinhaCard
+                  key={c.id}
+                  caixinha={c}
+                  currentMonth={month}
+                  currentYear={year}
+                  onUpdate={handleCaixinhaUpdate}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       )}
     </div>
   );
