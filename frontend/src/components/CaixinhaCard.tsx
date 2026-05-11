@@ -31,6 +31,12 @@ export default function CaixinhaCard({ caixinha, currentMonth, currentYear, onUp
   const monthsLeft = remaining > 0 ? Math.ceil(remaining / caixinha.monthlyContribution) : 0;
   const isComplete = totalSaved >= caixinha.targetValue;
 
+  const completionDate = (() => {
+    if (isComplete) return null;
+    const d = new Date(currentYear, currentMonth - 1 + monthsLeft, 1);
+    return d.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+  })();
+
   const isMissedThisMonth = caixinha.checkIns.some(
     (c) => c.month === currentMonth && c.year === currentYear,
   );
@@ -110,6 +116,14 @@ export default function CaixinhaCard({ caixinha, currentMonth, currentYear, onUp
           <span className="text-red-400">{missedMonths} {missedMonths === 1 ? 'mês perdido' : 'meses perdidos'}</span>
         )}
       </div>
+
+      {/* Mensagem motivacional */}
+      {completionDate && (
+        <p className="text-xs text-slate-400 text-center">
+          Continue assim e você atingirá a meta em{' '}
+          <span className="text-emerald-400 font-medium">{completionDate}</span>
+        </p>
+      )}
 
       {/* Botão para marcar mês perdido */}
       {!isComplete && (
