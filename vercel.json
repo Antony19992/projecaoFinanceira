@@ -1,7 +1,6 @@
 {
   "version": 2,
-  "framework": "services",
-  "experimentalServices": [
+  "builds": [
     {
       "src": "frontend/package.json",
       "use": "@vercel/next"
@@ -9,6 +8,16 @@
     {
       "src": "backend/api/index.ts",
       "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "backend/api/index.ts"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "frontend/$1"
     }
   ]
 }
