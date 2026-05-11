@@ -165,7 +165,16 @@ export default function CaixinhasPage() {
       )}
 
       {caixinhas.map((c) => {
-        const totalSaved = c.checkIns.length * c.monthlyContribution;
+        const now = new Date();
+        const startDate = new Date(c.createdAt);
+        const elapsedMonths = Math.max(
+          1,
+          (now.getFullYear() - startDate.getFullYear()) * 12 +
+            (now.getMonth() - startDate.getMonth()) + 1,
+        );
+        const missedMonths = c.checkIns.length;
+        const savedMonths = Math.max(0, elapsedMonths - missedMonths);
+        const totalSaved = savedMonths * c.monthlyContribution;
         const progress = Math.min(100, (totalSaved / c.targetValue) * 100);
         const monthsTotal = Math.ceil(c.targetValue / c.monthlyContribution);
         const monthsLeft = Math.max(0, Math.ceil((c.targetValue - totalSaved) / c.monthlyContribution));
@@ -225,7 +234,10 @@ export default function CaixinhasPage() {
             </div>
 
             <p className="text-xs text-slate-500 text-center">
-              {c.checkIns.length} de {monthsTotal} contribuições realizadas
+              {savedMonths} de {monthsTotal} meses guardados
+              {missedMonths > 0 && (
+                <span className="text-red-400"> · {missedMonths} {missedMonths === 1 ? 'mês perdido' : 'meses perdidos'}</span>
+              )}
             </p>
           </div>
         );
