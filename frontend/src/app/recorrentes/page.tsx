@@ -105,26 +105,30 @@ function RecurringItem({
   onDelete: (id: string) => void;
 }) {
   return (
-    <li className="flex items-center justify-between bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 gap-3">
+    <li className="flex flex-col gap-3 rounded-xl border border-slate-800 bg-slate-900 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-white truncate">{item.description}</p>
         <p className="text-xs text-slate-500">
           {item.category} · todo dia {item.dayOfMonth}
         </p>
       </div>
-      <span className={`text-sm font-bold shrink-0 ${item.type === 'INCOME' ? 'text-green-400' : 'text-red-400'}`}>
-        {item.type === 'INCOME' ? '+' : '-'} {formatCurrency(item.amount)}
-      </span>
-      <div className="flex items-center gap-2 shrink-0">
-        {/* Toggle pause/resume */}
+      <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+        <span className={`text-sm font-bold shrink-0 ${item.type === 'INCOME' ? 'text-green-400' : 'text-red-400'}`}>
+          {item.type === 'INCOME' ? '+' : '-'} {formatCurrency(item.amount)}
+        </span>
         <button
           onClick={() => onToggle(item)}
           title={item.active ? 'Pausar' : 'Reativar'}
-          className={`w-8 h-5 rounded-full transition-colors relative ${item.active ? 'bg-blue-500' : 'bg-slate-700'}`}
+          className={`relative inline-flex items-center justify-center w-12 h-6 rounded-full transition-colors ${item.active ? 'bg-blue-500' : 'bg-slate-700'}`}
+          aria-label={item.active ? 'Pausar recorrência' : 'Reativar recorrência'}
         >
-          <span className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${item.active ? 'translate-x-3' : 'translate-x-0.5'}`} />
+          <span className={`absolute left-0.5 top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${item.active ? 'translate-x-5' : 'translate-x-0'}`} />
         </button>
-        <button onClick={() => onDelete(item.id)} className="text-slate-600 hover:text-red-400 transition-colors text-xs">
+        <button
+          onClick={() => onDelete(item.id)}
+          className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-800 text-slate-300 transition-colors hover:bg-red-500 hover:text-white"
+          aria-label="Excluir lançamento fixo"
+        >
           ✕
         </button>
       </div>
