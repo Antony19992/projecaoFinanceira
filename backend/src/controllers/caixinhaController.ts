@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import * as svc from '../services/caixinhaService';
 
+
 export async function getCaixinhas(req: Request, res: Response) {
   try {
     const data = await svc.listCaixinhas(req.userId!);
@@ -55,5 +56,31 @@ export async function postCheckIn(req: Request, res: Response) {
     res.json(result);
   } catch {
     res.status(500).json({ error: 'Erro ao registrar check-in' });
+  }
+}
+
+export async function postExtra(req: Request, res: Response) {
+  const { id } = req.params;
+  const { month, year, amount } = req.body;
+  if (!month || !year || !amount) {
+    return res.status(400).json({ error: 'month, year e amount são obrigatórios' });
+  }
+  try {
+    const result = await svc.addExtra(id, req.userId!, Number(month), Number(year), Number(amount));
+    if (!result) return res.status(404).json({ error: 'Caixinha não encontrada' });
+    res.status(201).json(result);
+  } catch {
+    res.status(500).json({ error: 'Erro ao adicionar extra' });
+  }
+}
+
+export async function deleteExtra(req: Request, res: Response) {
+  const { extraId } = req.params;
+  try {
+    const ok = await svc.removeExtra(extraId, req.userId!);
+    if (!ok) return res.status(404).json({ error: 'Extra não encontrado' });
+    res.status(204).send();
+  } catch {
+    res.status(500).json({ error: 'Erro ao remover extra' });
   }
 }

@@ -174,7 +174,8 @@ export default function CaixinhasPage() {
         );
         const missedMonths = c.checkIns.length;
         const savedMonths = Math.max(0, elapsedMonths - missedMonths);
-        const totalSaved = savedMonths * c.monthlyContribution;
+        const extrasTotal = c.extras.reduce((sum, e) => sum + e.amount, 0);
+        const totalSaved = savedMonths * c.monthlyContribution + extrasTotal;
         const progress = Math.min(100, (totalSaved / c.targetValue) * 100);
         const monthsTotal = Math.ceil(c.targetValue / c.monthlyContribution);
         const monthsLeft = Math.max(0, Math.ceil((c.targetValue - totalSaved) / c.monthlyContribution));

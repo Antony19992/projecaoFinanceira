@@ -60,6 +60,7 @@ model Caixinha {
   targetValue         Float
   monthlyContribution Float
   checkIns            CaixinhaCheckIn[]
+  extras              CaixinhaExtra[]
   createdAt           DateTime          @default(now())
   updatedAt           DateTime          @updatedAt
 }
@@ -73,4 +74,14 @@ model CaixinhaCheckIn {
   createdAt  DateTime @default(now())
 
   @@unique([caixinhaId, month, year])
+}
+
+model CaixinhaExtra {
+  id         String   @id @default(cuid())
+  caixinhaId String
+  caixinha   Caixinha @relation(fields: [caixinhaId], references: [id], onDelete: Cascade)
+  month      Int
+  year       Int
+  amount     Float
+  createdAt  DateTime @default(now())
 }

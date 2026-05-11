@@ -90,6 +90,15 @@ export interface CaixinhaCheckIn {
   createdAt: string;
 }
 
+export interface CaixinhaExtra {
+  id: string;
+  caixinhaId: string;
+  month: number;
+  year: number;
+  amount: number;
+  createdAt: string;
+}
+
 export interface Caixinha {
   id: string;
   name: string;
@@ -97,6 +106,7 @@ export interface Caixinha {
   targetValue: number;
   monthlyContribution: number;
   checkIns: CaixinhaCheckIn[];
+  extras: CaixinhaExtra[];
   createdAt: string;
   updatedAt: string;
 }

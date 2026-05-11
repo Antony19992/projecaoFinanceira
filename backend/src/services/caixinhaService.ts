@@ -3,7 +3,10 @@ import prisma from '../lib/prisma';
 export async function listCaixinhas(userId: string) {
   return prisma.caixinha.findMany({
     where: { userId },
-    include: { checkIns: { orderBy: [{ year: 'asc' }, { month: 'asc' }] } },
+    include: {
+      checkIns: { orderBy: [{ year: 'asc' }, { month: 'asc' }] },
+      extras: { orderBy: [{ year: 'asc' }, { month: 'asc' }] },
+    },
     orderBy: { createdAt: 'asc' },
   });
 }
@@ -53,4 +56,25 @@ export async function toggleCheckIn(
 
   await prisma.caixinhaCheckIn.create({ data: { caixinhaId, month, year } });
   return { checked: true };
+}
+
+export async function addExtra(
+  caixinhaId: string,
+  userId: string,
+  month: number,
+  year: number,
+  amount: number,
+) {
+  const caixinha = await prisma.caixinha.findFirst({ where: { id: caixinhaId, userId } });
+  if (!caixinha) return null;
+  return prisma.caixinhaExtra.create({ data: { caixinhaId, month, year, amount } });
+}
+
+export async function removeExtra(extraId: string, userId: string) {
+  const extra = await prisma.caixinhaExtra.findFirst({
+    where: { id: extraId, caixinha: { userId } },
+  });
+  if (!extra) return false;
+  await prisma.caixinhaExtra.delete({ where: { id: extraId } });
+  return true;
 }
